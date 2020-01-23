@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!-- base template for common html -->
+<html>
+  <head>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600' rel='stylesheet'>
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1 class="title">Magallan</h1>
+      </div>
+    </header>
+    <!-- child pages/elements use the below portion for their own content -->
+    {% block content %}
+    {% endblock %}
+
+  </body>
+</html>
