@@ -2,4 +2,5 @@
 
 .git
 *.pyc
+app.ini
 

@@ -8,11 +8,20 @@ app = Flask(__name__)
 
 # --------------------------------------------------
 from models import Base, User
+import connection
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy import exc # exception
 
 # Create an engine that stores data in the local db file
-engine = create_engine('postgresql://USERID:USERPASSWORD@localhost:5432/learningflask')
+# engine = create_engine('postgresql://USER:PW@localhost:5432//learningflask')
+try:
+    engine = create_engine(connection.db_connect)
+    print("*** INSIDE ROUTES.PY ***")
+    print(connection.db_connect)
+except exc.SQLAlchemyError:
+    print("\n *** Oh crap. Something went wrong! *** \n")
+
 
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
