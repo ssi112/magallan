@@ -1,7 +1,15 @@
-from flask import Flask, render_template
+"""
+routes.py - maps URLs to functions
+
+"""
+from flask import Flask, render_template, request
+from forms import SignupForm
+
 # ORG CODE from models import db
 
 app = Flask(__name__)
+
+app.secret_key = "development-key"
 
 # ORG CODE app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/learningflask'
 # ORG CODE db.init_app(app)
@@ -37,6 +45,21 @@ def index():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    form = SignupForm()
+
+    if request.method == "POST":
+        if form.validate() == False:
+            return render_template('signup.html', form = form)
+        else:
+            newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
+            #session.add(newuser)
+            #session.commit()
+            return "Success!"
+    elif request.method == "GET":
+        return render_template("signup.html", form = form)
 
 if __name__ == "__main__":
     app.run(debug=True)
