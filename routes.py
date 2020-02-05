@@ -2,14 +2,16 @@
 routes.py - maps URLs to functions
 
 """
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect, url_for
 from forms import SignupForm
+#from flask_session import Session
 
 # ORG CODE from models import db
 
 app = Flask(__name__)
 
-app.secret_key = "development-key"
+app.secret_key = "A00r69j/3yX R~XhH!jmN]L_X/M?rT"
+
 
 # ORG CODE app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/learningflask'
 # ORG CODE db.init_app(app)
@@ -36,7 +38,7 @@ except exc.SQLAlchemyError:
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind = engine)
-session = DBSession()
+dbSession = DBSession()
 
 @app.route("/")
 def index():
@@ -44,6 +46,7 @@ def index():
 
 @app.route("/about")
 def about():
+    session['tmp'] = "more session crap"
     return render_template("about.html")
 
 @app.route("/signup", methods=['GET', 'POST'])
@@ -55,11 +58,18 @@ def signup():
             return render_template('signup.html', form = form)
         else:
             newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
-            session.add(newuser)
-            session.commit()
-            return "Success!"
+            dbSession.add(newuser)
+            dbSession.commit()
+            # create new session for user that just signed up
+            session['email'] = newuser.email
+            # send back to home page
+            return redirect(url_for('home'))
     elif request.method == "GET":
         return render_template("signup.html", form = form)
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
