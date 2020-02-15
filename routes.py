@@ -3,7 +3,7 @@ routes.py - maps URLs to functions
 
 """
 from flask import Flask, render_template, request, session, redirect, url_for
-from forms import SignupForm, LoginForm
+from forms import SignupForm, LoginForm, AddressForm
 
 # ORG CODE from models import db
 
@@ -39,7 +39,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
 dbSession = DBSession()
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -52,6 +51,10 @@ def about():
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
+    # check if already logged in and redirect if so
+    if 'email' in session:
+        return redirect(url_for('home'))
+
     form = SignupForm()
 
     if request.method == "POST":
@@ -63,6 +66,7 @@ def signup():
             dbSession.commit()
             # create new session for user that just signed up
             session['email'] = newuser.email
+            session['user_name'] = str(User(form.first_name.data)) + ' ' + str(UserUser(form.last_name.data))
             # send back to home page
             return redirect(url_for('home'))
     elif request.method == "GET":
@@ -71,6 +75,11 @@ def signup():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    global USERNAME
+    # check if already logged in and redirect if so
+    if 'email' in session:
+        return redirect(url_for("home"))
+
     form = LoginForm()
     if request.method == "POST":
         if form.validate() == False:
@@ -80,10 +89,10 @@ def login():
             password = form.password.data
 
             user = dbSession.query(User).filter_by(email = email).first()
-
+            session['user_name'] = user.firstname + ' ' + user.lastname
             if user is not None and user.check_password(password):
                 session['email'] = form.email.data
-                return redirect(url_for('home'))
+                return redirect(url_for("home"))
             else:
                 return redirect(url_for('login'))
     elif request.method == "GET":
@@ -93,12 +102,35 @@ def login():
 @app.route("/logout")
 def logout():
     session.pop('email', None) # delete the cookie
+    session.pop('user_name', None)
     return redirect(url_for('index'))
 
 
 @app.route("/home")
 def home():
+    if 'email' not in session:
+        # user not logged in send to to login page
+        return redirect(url_for('login'))
+
+    form = AddressForm()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            # reload the page - try again
+            return render_template("home.html", form = form)
+        else:
+            # get the address
+            address = form.address.data
+            # query for places around it
+
+            # return the results
+
+            pass
+    elif request.method == 'GET':
+        return render_template("home.html", form = form)
+
     return render_template("home.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)

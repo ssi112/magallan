@@ -40,3 +40,7 @@ class LoginForm(Form):
     password = PasswordField('Password', validators=[DataRequired("Passwords enter your password")])
     submit = SubmitField("Sign In")
 
+class AddressForm(Form):
+    address = StringField("Address", validators=[DataRequired("Please enter an address")])
+    submit = SubmitField("Search")
+
